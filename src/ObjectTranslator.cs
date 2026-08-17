@@ -224,7 +224,7 @@ namespace NLua
             if (message != null)
             {
                 // Wrap Lua error (just a string) and store the error location
-                if (interpreter?.UseTraceback is true) 
+                if (interpreter?.UseTraceback is true)
                     message += Environment.NewLine + interpreter.GetDebugTraceback();
                 e = new LuaScriptException(message, errLocation);
             }
@@ -241,6 +241,33 @@ namespace NLua
             }
 
             Push(luaState, e);
+        }
+
+        /*
+         * Passes an error to the Lua interpreter with a caller-supplied readable
+         * message AND the original .NET exception preserved as InnerException.
+         * Used at sites that want to surface a nicer message than the generic
+         * "A .NET exception occurred in user-code" (e.g. "key 'X' not found")
+         * without losing the original CLR exception in the process — C#-side
+         * callers can then route on the original type via
+         * <see cref="Exception.InnerException"/> instead of string-matching
+         * the message.
+         */
+        internal void ThrowError(LuaState luaState, string message, Exception innerException)
+        {
+            int oldTop = luaState.GetTop();
+            luaState.Where(1);
+            var curlev = PopValues(luaState, oldTop);
+
+            string errLocation = string.Empty;
+            if (curlev.Length > 0)
+                errLocation = curlev[0].ToString();
+
+            Lua interpreter = Interpreter;
+            if (interpreter?.UseTraceback is true && innerException != null)
+                innerException.Data["Traceback"] = interpreter.GetDebugTraceback();
+
+            Push(luaState, new LuaScriptException(message, errLocation, innerException));
         }
 
         /*
