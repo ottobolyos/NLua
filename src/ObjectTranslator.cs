@@ -244,14 +244,7 @@ namespace NLua
         }
 
         /*
-         * Passes an error to the Lua interpreter with a caller-supplied readable
-         * message AND the original .NET exception preserved as InnerException.
-         * Used at sites that want to surface a nicer message than the generic
-         * "A .NET exception occurred in user-code" (e.g. "key 'X' not found")
-         * without losing the original CLR exception in the process — C#-side
-         * callers can then route on the original type via
-         * <see cref="Exception.InnerException"/> instead of string-matching
-         * the message.
+         * Like ThrowError(LuaState, object), but preserves innerException on the LuaScriptException
          */
         internal void ThrowError(LuaState luaState, string message, Exception innerException)
         {
