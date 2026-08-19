@@ -45,15 +45,8 @@ namespace NLua.Exceptions
 
         /// <summary>
         /// Creates a new .NET wrapping exception with a caller-supplied message.
-        /// Used at sites where a more readable, context-specific message
-        /// (e.g. "key 'X' not found") is preferable to the generic
-        /// "A .NET exception occurred in user-code" text without losing the
-        /// original .NET exception in the process — <paramref name="innerException"/>
-        /// remains accessible via <see cref="Exception.InnerException"/> so
-        /// C#-side callers can route on the original CLR type rather than
-        /// string-matching the message.
         /// </summary>
-        /// <param name="message">The caller-supplied readable message.</param>
+        /// <param name="message">The message that describes the error.</param>
         /// <param name="source">The position in the script where the exception was triggered.</param>
         /// <param name="innerException">The .NET exception triggered by user-code.</param>
         public LuaScriptException(string message, string source, Exception innerException)
